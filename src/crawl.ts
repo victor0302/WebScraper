@@ -12,3 +12,13 @@ export function normalizeURL (url:string): string{
     
     return fullPath;
 }
+
+
+
+export function getH1FromHTML(html: string): string{
+    return ""
+}
+
+export function getFirstParagraphFromHTML(html: string): string{
+    return ""
+}
