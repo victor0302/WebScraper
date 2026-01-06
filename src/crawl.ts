@@ -97,22 +97,29 @@ export function getImagesFromHTML(html: string, baseURL: string): string[] {
     return urls;
 }
 
-export function extractPageData(html:string, pageURL: string): ExtractedPageData{
-    const url= normalizeURL(pageURL)
-    const header = getH1FromHTML(html)
-    const first_p = getFirstParagraphFromHTML (html)
-    const outgoing_links = getURLsFromHTML (html,pageURL)
-    const image_urls = getImagesFromHTML(html,pageURL)
-    
-
-    return {
-        url: url,
-        h1: header,
-        firstParagraph: first_p,
-        outgoing_links: outgoing_links,
-        image_urls: image_urls
-
+export function extractPageData(html: string, pageURL: string): ExtractedPageData {
+    let finalUrl = pageURL;
+    try {
+        const urlObj = new URL(pageURL);
+        if (urlObj.href.endsWith('/')) {
+            finalUrl = urlObj.href.slice(0, -1);
+        } else {
+            finalUrl = urlObj.href;
+        }
+    } catch (e) {
+        console.log(`Error parsing page URL: ${pageURL}`);
     }
 
+    const header = getH1FromHTML(html);
+    const first_p = getFirstParagraphFromHTML(html);
+    const outgoing_links = getURLsFromHTML(html, pageURL);
+    const image_urls = getImagesFromHTML(html, pageURL);
 
+    return {
+        url: finalUrl,             
+        h1: header,
+        first_paragraph: first_p,  
+        outgoing_links: outgoing_links,
+        image_urls: image_urls
+    };
 }
