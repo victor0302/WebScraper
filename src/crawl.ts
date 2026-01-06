@@ -2,6 +2,14 @@ import {JSDOM} from 'jsdom';
 import { url } from 'node:inspector';
 import { umask } from 'node:process';
 
+export interface ExtractedPageData{
+    url: string;
+    h1: string;
+    first_paragraph: string;
+    outgoing_links: string[];
+    image_urls: string[]
+}
+
 export function normalizeURL (url:string): string{
     const urlObj = new URL(url);
     const hostPath = urlObj.hostname;
@@ -100,7 +108,7 @@ export function extractPageData(html:string, pageURL: string): ExtractedPageData
     return {
         url: url,
         h1: header,
-        frist_paragrap: first_p,
+        firstParagraph: first_p,
         outgoing_links: outgoing_links,
         image_urls: image_urls
 
