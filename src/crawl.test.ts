@@ -1,5 +1,5 @@
 import {test, expect} from 'vitest';
-import {normalizeURL,getH1FromHTML,getFirstParagraphFromHTML,getURLsFromHTML} from './crawl';
+import {normalizeURL,getH1FromHTML,getFirstParagraphFromHTML,getURLsFromHTML,extractPageData} from './crawl';
 
 test('normalizeURL strips protocol', () =>{
     const input = 'https://blog.boot.dev/path';
@@ -110,4 +110,93 @@ test("getURLsFromHTML both", () => {
     expect(actual).toEqual(expected);
 });
 
-test
+
+test("extractPageData basic", () => {
+  const inputURL = "https://blog.boot.dev";
+  const inputBody = `
+    <html><body>
+      <h1>Test Title</h1>
+      <p>This is the first paragraph.</p>
+      <a href="/link1">Link 1</a>
+      <img src="/image1.jpg" alt="Image 1">
+    </body></html>
+  `;
+
+  const actual = extractPageData(inputBody, inputURL);
+  const expected = {
+    url: "https://blog.boot.dev",
+    h1: "Test Title",
+    first_paragraph: "This is the first paragraph.",
+    outgoing_links: ["https://blog.boot.dev/link1"],
+    image_urls: ["https://blog.boot.dev/image1.jpg"],
+  };
+
+  expect(actual).toEqual(expected);
+});
+
+test("extractPageData handles missing elements", () => {
+  const inputURL = "https://blog.boot.dev";
+  const inputBody = `
+    <html><body>
+      <div>Just some random text</div>
+    </body></html>
+  `;
+
+  const actual = extractPageData(inputBody, inputURL);
+  const expected = {
+    url: "https://blog.boot.dev",
+    h1: "",
+    first_paragraph: "",
+    outgoing_links: [],
+    image_urls: [],
+  };
+
+  expect(actual).toEqual(expected);
+});
+
+
+
+test("extractPageData finds multiple links and images", () => {
+  const inputURL = "https://blog.boot.dev";
+  const inputBody = `
+    <html><body>
+      <h1>Multiple Items</h1>
+      <p>Intro text.</p>
+      <a href="/link1">Link 1</a>
+      <a href="/link2">Link 2</a>
+      <img src="/img1.png">
+      <img src="/img2.png">
+    </body></html>
+  `;
+
+  const actual = extractPageData(inputBody, inputURL);
+  
+
+  expect(actual.outgoing_links).toEqual([
+      "https://blog.boot.dev/link1", 
+      "https://blog.boot.dev/link2"
+  ]);
+  expect(actual.image_urls).toEqual([
+      "https://blog.boot.dev/img1.png", 
+      "https://blog.boot.dev/img2.png"
+  ]);
+});
+
+
+test("extractPageData handles absolute URLs correctly", () => {
+  const inputURL = "https://blog.boot.dev";
+  const inputBody = `
+    <html><body>
+      <h1>Absolute URL Test</h1>
+      <p>Paragraph.</p>
+      <a href="https://other-site.com/path">External Link</a>
+      <img src="https://other-site.com/image.jpg">
+    </body></html>
+  `;
+
+  const actual = extractPageData(inputBody, inputURL);
+  
+
+  expect(actual.outgoing_links).toEqual(["https://other-site.com/path"]);
+  expect(actual.image_urls).toEqual(["https://other-site.com/image.jpg"]);
+});
