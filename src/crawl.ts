@@ -1,4 +1,5 @@
 import {JSDOM} from 'jsdom';
+import { umask } from 'node:process';
 
 export function normalizeURL (url:string): string{
     const urlObj = new URL(url);
@@ -37,3 +38,29 @@ export function getFirstParagraphFromHTML(html: string):string{
     return element.textContent
 
 }
+
+export function getURLsFromHTML (html: string, baseURL:string): string[]{
+    const dom = new JSDOM (html)
+    const anchorElements = dom.window.document.querySelectorAll("a")
+    const urls: string [] = [];
+    for (const anchorElement of anchorElements){
+        if ( anchorElement.hasAttribute('href')){
+             const href =anchorElement.getAttribute('href') as string
+             try{
+                const urlObj = new URL(href,baseURL)
+                if(urlObj.href.endsWith('/')){
+                    urls.push(urlObj.href.slice(0,-1))
+                }
+                else{
+                    urls.push(urlObj.href)
+                }
+             }
+             catch (err){
+                console.log(`Bad URL found: ${(err as Error).message}`);
+             }
+        }
+
+    }
+    return urls;
+}
+

@@ -1,5 +1,5 @@
 import {test, expect} from 'vitest';
-import {normalizeURL,getH1FromHTML,getFirstParagraphFromHTML} from './crawl';
+import {normalizeURL,getH1FromHTML,getFirstParagraphFromHTML,getURLsFromHTML} from './crawl';
 
 test('normalizeURL strips protocol', () =>{
     const input = 'https://blog.boot.dev/path';
@@ -14,6 +14,8 @@ test('normalizeURL strips protocol with /', () =>{
     const expected = 'blog.boot.dev/path';
     expect(actual).toBe(expected)
 });
+
+
 
 test("getH1FromHTML basic", () => {
     const inputBody = '<html><body><h1>Test Title</h1></body></html>';
@@ -61,5 +63,49 @@ test("getFirstParagraphFromHTML returns empty string if no p tags", () => {
     const html = `<html><body><h1>Just a title</h1></body></html>`;
     const actual = getFirstParagraphFromHTML(html);
     const expected = ""
+    expect(actual).toEqual(expected);
+});
+
+
+
+test("getURLsFromHTML absolute", () => {
+  const inputURL = "https://blog.boot.dev";
+  const inputBody = `<html><body><a href="https://blog.boot.dev"><span>Boot.dev</span></a></body></html>`;
+
+  const actual = getURLsFromHTML(inputBody, inputURL);
+  const expected = ["https://blog.boot.dev"];
+
+  expect(actual).toEqual(expected);
+});
+
+test("getURLsFromHTML relative", () => {
+    const inputURL = "https://blog.boot.dev";
+    const inputBody = `<html><body><a href="/path/one"><span>Boot.dev</span></a></body></html>`;
+
+    const actual = getURLsFromHTML(inputBody, inputURL);
+    const expected = ["https://blog.boot.dev/path/one"];
+
+    expect(actual).toEqual(expected);
+});
+
+
+
+test("getURLsFromHTML both", () => {
+    const inputURL = "https://blog.boot.dev";
+    const inputBody = `
+    <html>
+        <body>
+            <a href="https://blog.boot.dev/path/one"><span>Boot.dev</span></a>
+            <a href="/path/two"><span>Boot.dev</span></a>
+        </body>
+    </html>
+    `;
+
+    const actual = getURLsFromHTML(inputBody, inputURL);
+    const expected = [
+        "https://blog.boot.dev/path/one",
+        "https://blog.boot.dev/path/two"
+    ];
+
     expect(actual).toEqual(expected);
 });
