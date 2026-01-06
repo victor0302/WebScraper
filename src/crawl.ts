@@ -1,4 +1,5 @@
 import {JSDOM} from 'jsdom';
+import { url } from 'node:inspector';
 import { umask } from 'node:process';
 
 export function normalizeURL (url:string): string{
@@ -64,3 +65,46 @@ export function getURLsFromHTML (html: string, baseURL:string): string[]{
     return urls;
 }
 
+export function getImagesFromHTML(html: string, baseURL: string): string[] {
+    const dom = new JSDOM(html);
+    const imageElements = dom.window.document.querySelectorAll("img");
+    const urls: string[] = [];
+    
+    for (const imageElement of imageElements) {
+        if (imageElement.hasAttribute('src')) {
+            const src = imageElement.getAttribute('src') as string;
+            try {
+                const urlObj = new URL(src, baseURL);
+                
+                if (urlObj.href.endsWith('/')) {
+                    urls.push(urlObj.href.slice(0, -1));
+                } else {
+                    urls.push(urlObj.href);
+                }
+            } catch (err) {
+                console.log(`Bad Image URL found: ${(err as Error).message}`);
+            }
+        }
+    }
+    return urls;
+}
+
+export function extractPageData(html:string, pageURL: string): ExtractedPageData{
+    const url= normalizeURL(pageURL)
+    const header = getH1FromHTML(html)
+    const first_p = getFirstParagraphFromHTML (html)
+    const outgoing_links = getURLsFromHTML (html,pageURL)
+    const image_urls = getImagesFromHTML(html,pageURL)
+    
+
+    return {
+        url: url,
+        h1: header,
+        frist_paragrap: first_p,
+        outgoing_links: outgoing_links,
+        image_urls: image_urls
+
+    }
+
+
+}
