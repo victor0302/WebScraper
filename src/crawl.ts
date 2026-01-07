@@ -1,4 +1,5 @@
 import {JSDOM} from 'jsdom';
+import { error } from 'node:console';
 import { url } from 'node:inspector';
 import { umask } from 'node:process';
 
@@ -122,4 +123,25 @@ export function extractPageData(html: string, pageURL: string): ExtractedPageDat
         outgoing_links: outgoing_links,
         image_urls: image_urls
     };
+}
+
+
+export async function getHTML (url:string){
+    try{
+        const response = await fetch(url, {
+            headers: {
+                "User-Agent": "BootCrawler/1.0",
+            }
+        });
+        if (response.status >= 400){
+            console.error(" 400 error status")
+            return 
+
+        }
+        const contentType = response.headers.get("content-type")
+        const body = await response.text();
+    } catch (err) {
+
+    }
+    
 }
