@@ -1,6 +1,6 @@
 import { getHTML } from "./crawl";
 
-function main (){
+async function main (){
     const args = process.argv.slice(2);
     if ((args.length) < 1) {
         console.error("error: missing base URL");
@@ -12,7 +12,8 @@ function main (){
     }
     else{
         console.log(`starting at ${args[0]}`)
-        process.exit(0)
+        await getHTML(args[0])
+
     }
 
 

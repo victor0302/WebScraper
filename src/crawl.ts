@@ -148,7 +148,5 @@ export async function getHTML (url:string){
     } catch (err) {
         console.error(err)
 
-    }
-
-    
+    }   
 }
