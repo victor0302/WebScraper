@@ -1,3 +1,5 @@
+import { getHTML } from "./crawl";
+
 function main (){
     const args = process.argv.slice(2);
     if ((args.length) < 1) {

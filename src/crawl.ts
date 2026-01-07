@@ -134,14 +134,21 @@ export async function getHTML (url:string){
             }
         });
         if (response.status >= 400){
-            console.error(" 400 error status")
-            return 
+            console.error(" 400 error status");
+            return ;
 
         }
         const contentType = response.headers.get("content-type")
-        const body = await response.text();
+        if (!contentType || !contentType.includes("text/html")){
+            console.error("non-HTML response");
+            return;
+        }
+         const body = await response.text();
+         console.log(body);
     } catch (err) {
+        console.error(err)
 
     }
+
     
 }
