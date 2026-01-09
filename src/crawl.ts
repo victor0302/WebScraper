@@ -150,3 +150,15 @@ export async function getHTML (url:string){
 
     }   
 }
+
+export async function crawlPage ( 
+    baseURL: string,
+    currentURL: string = baseURL,
+    pages: Record <string, number> = {}
+
+){
+    console.log("crawling:", currentURL)
+
+    return pages
+
+}
