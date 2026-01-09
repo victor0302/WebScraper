@@ -1,7 +1,4 @@
 import {JSDOM} from 'jsdom';
-import { error } from 'node:console';
-import { url } from 'node:inspector';
-import { umask } from 'node:process';
 
 export interface ExtractedPageData{
     url: string;
@@ -126,29 +123,31 @@ export function extractPageData(html: string, pageURL: string): ExtractedPageDat
 }
 
 
-export async function getHTML (url:string){
-    try{
-        const response = await fetch(url, {
-            headers: {
-                "User-Agent": "BootCrawler/1.0",
-            }
-        });
-        if (response.status >= 400){
-            console.error(" 400 error status");
-            return ;
+export async function getHTML(url: string): Promise<string | undefined> {
+  try {
+    const response = await fetch(url, {
+      headers: {
+        "User-Agent": "BootCrawler/1.0",
+      },
+    })
 
-        }
-        const contentType = response.headers.get("content-type")
-        if (!contentType || !contentType.includes("text/html")){
-            console.error("non-HTML response");
-            return;
-        }
-         const body = await response.text();
-         console.log(body);
-    } catch (err) {
-        console.error(err)
+    if (response.status >= 400) {
+      console.error("400 error status")
+      return
+    }
 
-    }   
+    const contentType = response.headers.get("content-type")
+    if (!contentType || !contentType.includes("text/html")) {
+      console.error("non-HTML response")
+      return
+    }
+
+    const body = await response.text()
+    return body
+  } catch (err) {
+    console.error(err)
+    return
+  }
 }
 
 export async function crawlPage ( 
@@ -160,10 +159,36 @@ export async function crawlPage (
     const baseURLObj = new URL (baseURL)
     const currentURLObj = new URL(currentURL)
 
-    if (baseURLObj.hostname != currentURLObj.hostname){
+    if (baseURLObj.hostname !== currentURLObj.hostname) {
+    return pages
+    }
+    const normalizedCurrentURL = normalizeURL(currentURL)
+    if (normalizedCurrentURL in pages) {
+        pages[normalizedCurrentURL]++
         return pages
     }
-    const noramlizedCurrentURL = normalizeURL(currentURL)
+    pages[normalizedCurrentURL] = 1
+
+    try {
+        console.log("crawling:", currentURL)
+        const htmlBody = await getHTML(currentURL)
+        if (!htmlBody) {    
+        return pages
+        }
+
+        const nextURLS = getURLsFromHTML(htmlBody,baseURL)
+
+        for (const url of nextURLS){
+            pages = await crawlPage(baseURL,url,pages)
+
+        }
+
+
+    } catch (err) {
+        console.log("error in fetch:", err)
+        return pages
+    }
+
     return pages
 
 }
