@@ -157,8 +157,13 @@ export async function crawlPage (
     pages: Record <string, number> = {}
 
 ){
-    console.log("crawling:", currentURL)
+    const baseURLObj = new URL (baseURL)
+    const currentURLObj = new URL(currentURL)
 
+    if (baseURLObj.hostname != currentURLObj.hostname){
+        return pages
+    }
+    const noramlizedCurrentURL = normalizeURL(currentURL)
     return pages
 
 }
