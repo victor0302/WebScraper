@@ -5,10 +5,12 @@
   "type": "module",
   "scripts": {
     "start": "tsx ./src/index.ts",
-    "test": "vitest run"
+    "test": "vitest run",
+    "testing": "vitest run"
   },
   "author": "",
   "license": "ISC",
+  
   "description": "",
   "devDependencies": {
     "@types/jsdom": "^27.0.0",
