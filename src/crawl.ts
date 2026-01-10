@@ -22,8 +22,6 @@ export function normalizeURL (url:string): string{
     return fullPath;
 }
 
-
-
 export function getH1FromHTML(html: string):string{
     const dom = new JSDOM (html);
     const h1 = dom.window.document.querySelector("h1");
@@ -147,21 +145,17 @@ class ConcurrentCrawler {
   }
 
   private addPageVisit(normalizedURL: string): boolean {
-    // stop immediately if we've already decided to stop
     if (this.shouldStop) {
       return false;
     }
 
-    // already seen this page: just bump count
     if (this.pages[normalizedURL]) {
       this.pages[normalizedURL] += 1;
       return false;
     }
 
-    // first time seeing this page
     this.pages[normalizedURL] = 1;
 
-    // check if we've reached the max unique pages
     if (Object.keys(this.pages).length >= this.maxPages) {
       this.shouldStop = true;
       console.log("Reached maximum number of pages to crawl.");
@@ -197,7 +191,6 @@ class ConcurrentCrawler {
   }
 
   private async crawlPage(currentURL: string): Promise<void> {
-    // early stop check
     if (this.shouldStop) {
       return;
     }
