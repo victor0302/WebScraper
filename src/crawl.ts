@@ -1,4 +1,5 @@
 import {JSDOM} from 'jsdom';
+import pLimit from 'p-limit';
 
 export interface ExtractedPageData{
     url: string;
@@ -191,4 +192,18 @@ export async function crawlPage (
 
     return pages
 
+}
+
+
+
+class ConcurrentCrawler {
+    private baseURL: string;
+    private pages: Record<string,number>;
+    private limit: ReturnType<typeof pLimit>;
+
+    constructor(baseURL: string, maxConcurrency: number) {
+    this.baseURL = baseURL;
+    this.pages = {};
+    this.limit = pLimit(maxConcurrency);
+    }
 }
