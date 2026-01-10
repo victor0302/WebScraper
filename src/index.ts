@@ -30,7 +30,7 @@ async function main() {
 
   const pageData = await crawlSiteAsync(baseURL, maxConcurrency, maxPages);
 
-  // write CSV instead of printing all page details
+
   writeCSVReport(pageData);
 
   console.log("Report written to report.csv");
