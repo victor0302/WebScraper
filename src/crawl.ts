@@ -206,4 +206,15 @@ class ConcurrentCrawler {
     this.pages = {};
     this.limit = pLimit(maxConcurrency);
     }
+
+    private addPageVisit(normalizedURL: string): boolean {
+        if (this.pages[normalizedURL]) {
+            this.pages[normalizedURL] += 1;
+            return false;
+  } else {
+        this.pages[normalizedURL] = 1;
+        return true;
+  }
 }
+}
+
