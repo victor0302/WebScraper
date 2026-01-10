@@ -124,32 +124,6 @@ export function extractPageData(html: string, pageURL: string): ExtractedPageDat
 }
 
 
-export async function getHTML(url: string): Promise<string | undefined> {
-  try {
-    const response = await fetch(url, {
-      headers: {
-        "User-Agent": "BootCrawler/1.0",
-      },
-    })
-
-    if (response.status >= 400) {
-      console.error("400 error status")
-      return
-    }
-
-    const contentType = response.headers.get("content-type")
-    if (!contentType || !contentType.includes("text/html")) {
-      console.error("non-HTML response")
-      return
-    }
-
-    const body = await response.text()
-    return body
-  } catch (err) {
-    console.error(err)
-    return
-  }
-}
 
 export async function crawlPage ( 
     baseURL: string,
@@ -215,6 +189,29 @@ class ConcurrentCrawler {
         this.pages[normalizedURL] = 1;
         return true;
   }
+}
+    private async getHTML(currentURL: string): Promise<string> {
+        return await this.limit(async () => {
+            let res;
+            try {
+                res = await fetch(currentURL, {
+                    headers: { "User-Agent": "BootCrawler/1.0" },
+      });
+    } catch (err) {
+      throw new Error(`Got Network error: ${(err as Error).message}`);
+    }
+
+    if (res.status > 399) {
+      throw new Error(`Got HTTP error: ${res.status} ${res.statusText}`);
+    }
+
+    const contentType = res.headers.get("content-type");
+    if (!contentType || !contentType.includes("text/html")) {
+      throw new Error(`Got non-HTML response: ${contentType}`);
+    }
+
+    return res.text();
+  });
 }
 }
 
