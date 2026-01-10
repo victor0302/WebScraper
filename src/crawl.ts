@@ -127,11 +127,23 @@ class ConcurrentCrawler {
   private baseURL: string;
   private pages: Record<string, number>;
   private limit: ReturnType<typeof pLimit>;
+  private maxPages: number;
+  private shouldStop: boolean;
+  private allTasks: Set<Promise<void>>;
+  private abortController: AbortController;
 
-  constructor(baseURL: string, maxConcurrency: number = 5) {
+  constructor(
+    baseURL: string,
+    maxConcurrency: number = 5,
+    maxPages: number = Infinity,
+  ) {
     this.baseURL = baseURL;
     this.pages = {};
     this.limit = pLimit(maxConcurrency);
+    this.maxPages = maxPages;
+    this.shouldStop = false;
+    this.allTasks = new Set();
+    this.abortController = new AbortController();
   }
 
   private addPageVisit(normalizedURL: string): boolean {
@@ -150,6 +162,7 @@ class ConcurrentCrawler {
       try {
         res = await fetch(currentURL, {
           headers: { "User-Agent": "BootCrawler/1.0" },
+          signal: this.abortController.signal,
         });
       } catch (err) {
         throw new Error(`Got Network error: ${(err as Error).message}`);
@@ -205,12 +218,13 @@ class ConcurrentCrawler {
   }
 }
 
-
 export async function crawlSiteAsync(
   baseURL: string,
   maxConcurrency: number = 5,
+  maxPages: number = Infinity,
 ): Promise<Record<string, number>> {
-  const crawler = new ConcurrentCrawler(baseURL, maxConcurrency);
+  const crawler = new ConcurrentCrawler(baseURL, maxConcurrency, maxPages);
   return await crawler.crawl();
 }
+
 
