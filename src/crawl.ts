@@ -147,13 +147,28 @@ class ConcurrentCrawler {
   }
 
   private addPageVisit(normalizedURL: string): boolean {
+    // stop immediately if we've already decided to stop
+    if (this.shouldStop) {
+      return false;
+    }
+
+    // already seen this page: just bump count
     if (this.pages[normalizedURL]) {
       this.pages[normalizedURL] += 1;
       return false;
-    } else {
-      this.pages[normalizedURL] = 1;
-      return true;
     }
+
+    // first time seeing this page
+    this.pages[normalizedURL] = 1;
+
+    // check if we've reached the max unique pages
+    if (Object.keys(this.pages).length >= this.maxPages) {
+      this.shouldStop = true;
+      console.log("Reached maximum number of pages to crawl.");
+      this.abortController.abort();
+    }
+
+    return true;
   }
 
   private async getHTML(currentURL: string): Promise<string> {
@@ -182,6 +197,11 @@ class ConcurrentCrawler {
   }
 
   private async crawlPage(currentURL: string): Promise<void> {
+    // early stop check
+    if (this.shouldStop) {
+      return;
+    }
+
     const currentURLObj = new URL(currentURL);
     const baseURLObj = new URL(this.baseURL);
     if (currentURLObj.hostname !== baseURLObj.hostname) {
@@ -205,15 +225,26 @@ class ConcurrentCrawler {
     }
 
     const nextURLs = getURLsFromHTML(html, this.baseURL);
-    const crawlPromises = nextURLs.map((nextURL) =>
-      this.crawlPage(nextURL),
-    );
+
+    const crawlPromises = nextURLs.map((nextURL) => {
+      const task = this.crawlPage(nextURL).finally(() => {
+        this.allTasks.delete(task);
+      });
+      this.allTasks.add(task);
+      return task;
+    });
 
     await Promise.all(crawlPromises);
   }
 
   async crawl(): Promise<Record<string, number>> {
-    await this.crawlPage(this.baseURL);
+    const initialTask = this.crawlPage(this.baseURL).finally(() => {
+      this.allTasks.delete(initialTask);
+    });
+    this.allTasks.add(initialTask);
+
+    await Promise.all(this.allTasks);
+
     return this.pages;
   }
 }
