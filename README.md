@@ -37,7 +37,9 @@ A robust, high-performance web crawler designed to audit internal linking struct
    cd ts-crawler
 
 2. **Set Node version**
-   ```nvim use
+   ```bash
+      nvim use
 
 3. **Install dependencies**
-   ```npm install
+   ```bash
+   npm install
