@@ -38,8 +38,14 @@ A robust, high-performance web crawler designed to audit internal linking struct
 
 2. **Set Node version**
    ```bash
-      nvim use
+   nvim use
 
 3. **Install dependencies**
    ```bash
    npm install
+
+
+## Usage
+The crawler requires three command-line arguments: the starting URL, Max Concurrency, and Max Pages
+ ```bash
+ npm run start <URL> <maxConcurrency> <maxPages>
