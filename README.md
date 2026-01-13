@@ -8,7 +8,7 @@ A robust, high-performance web crawler designed to audit internal linking struct
 
 ---
 
-## 🛠 Tech Stack
+##  Tech Stack
 
 | Category | Tools |
 | :--- | :--- |
@@ -19,7 +19,7 @@ A robust, high-performance web crawler designed to audit internal linking struct
 | **Testing** | Vitest |
 | **Execution** | tsx (TypeScript Execute) |
 
-## 🚀 Key Features
+##  Key Features
 
 - **Asynchronous Concurrency**: Managed execution using `p-limit` to prevent socket exhaustion and server-side rate limiting.
 - **Data Normalization**: Intelligent URL processing to prevent duplicate crawling of the same resource (strips protocols and trailing slashes).
@@ -29,9 +29,15 @@ A robust, high-performance web crawler designed to audit internal linking struct
 - **Safety Features**: Integrated `AbortController` for request timeouts and domain-locking to prevent "infinite" external crawling.
 - **Reporting**: Automatic generation of RFC-compliant CSV reports with escaped special characters.
 
-## 📋 Installation
+##  Installation
 
 1. **Clone the repository:**
    ```bash
    git clone [https://github.com/yourusername/ts-crawler.git](https://github.com/yourusername/ts-crawler.git)
    cd ts-crawler
+
+2. **Set Node version**
+   ```nvim use
+
+3. **Install dependencies**
+   ```npm install
